@@ -57,4 +57,5 @@ new_items, new_attributes, new_values = zip(*new_edge_list)
 sparse_m = coo_matrix((new_values, (new_items, new_attributes)), shape=(len(item_mapping),
                                                              len(attribute_mapping)))
 
+
 print(sparse_m.toarray())
