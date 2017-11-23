@@ -1,6 +1,8 @@
 import re
 import json
+import numpy as np
 from scipy.sparse import coo_matrix
+from scipy import spatial
 
 #filename = 'data_sample'
 filename = 'magia_cluster_data'
@@ -54,7 +56,16 @@ for edge in edge_list:
 
 new_items, new_attributes, new_values = zip(*new_edge_list)
 
-sparse_m = coo_matrix((new_values, (new_items, new_attributes)), shape=(len(item_mapping),
-                                                             len(attribute_mapping)))
+connectivity_m = coo_matrix((new_values, (new_items, new_attributes)), shape=(len(item_mapping),
+                                                             len(attribute_mapping))).toarray()
 
-print(sparse_m.toarray())
+#print(sparse_m.toarray())
+#similarity : cosine
+similarity_matrix = np.zeros((len(item_mapping), len(item_mapping)))
+
+for i in range(len(item_mapping) - 1):
+    ss = 1- spatial.distance.cosine(connectivity_m[i,:],
+                           connectivity_m[i+1,:])
+    similarity_matrix[i][i+1] = ss
+
+print(similarity_matrix)
