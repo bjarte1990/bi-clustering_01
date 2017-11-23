@@ -62,10 +62,11 @@ connectivity_m = coo_matrix((new_values, (new_items, new_attributes)), shape=(le
 #print(sparse_m.toarray())
 #similarity : cosine
 similarity_matrix = np.zeros((len(item_mapping), len(item_mapping)))
-
+np.fill_diagonal(similarity_matrix, 1)
 for i in range(len(item_mapping) - 1):
     ss = 1- spatial.distance.cosine(connectivity_m[i,:],
                            connectivity_m[i+1,:])
     similarity_matrix[i][i+1] = ss
+    similarity_matrix[i+1][i] = ss
 
 print(similarity_matrix)
