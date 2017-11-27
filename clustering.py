@@ -6,14 +6,15 @@ from sklearn.cluster import DBSCAN, SpectralClustering
 from scipy import spatial
 from collections import Counter
 from sklearn.metrics.pairwise import pairwise_distances
+from collections import defaultdict
 
 class Clustering:
 
     weights = None
     edge_list = None
+    categorical_list = None
     items = None
     attributes = None
-    parent_attributes = None
     values = None
     item_mapping = None
     attribute_mapping = None
@@ -33,7 +34,7 @@ class Clustering:
     def __generate_edge_list(self, links):
         # from-to:value
         self.edge_list = []
-        self.parent_attributes = {}
+        self.categorical_list = defaultdict(lambda: defaultdict(list))
         # unpack values
         for link in links:
             for attribute in link[1]['attributes']:
@@ -44,16 +45,18 @@ class Clustering:
                     v = float(values[0]['v']) * self.weights[a_id]
                     self.edge_list.append((link[0], str(a_id), v))
                 else:
-                    values_dict = {}
                     # for value in values:
                     # values_dict[value['node_id']] = value['v']
                     #             item_attribute.append((link[0], a_id, values_dict))
 
                     # trick: we dont need a list for nodes, handle nodes as attributes
-                    for value in values:
-                        #self.parent_attributes[int(value['node_id'])] = int(a_id)
-                        v = float(value['v']) * self.weights[a_id]
-                        self.edge_list.append((link[0], str(value['node_id']), v))
+                    self.categorical_list[link[0]][a_id] = \
+                        list(map(lambda x: (x['node_id'], x['v']), values))
+
+                    # for value in values:
+                    #     #self.parent_attributes[int(value['node_id'])] = int(a_id)
+                    #     v = float(value['v']) * self.weights[a_id]
+                    #     self.edge_list.append((link[0], str(value['node_id']), v))
 
         self.items, self.attributes, self.values = zip(*self.edge_list)
 
