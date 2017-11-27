@@ -3,7 +3,6 @@ import json
 import numpy as np
 from scipy.sparse import csr_matrix
 from sklearn.cluster import DBSCAN, SpectralClustering
-from scipy import spatial
 from collections import Counter
 from sklearn.metrics.pairwise import pairwise_distances
 from collections import defaultdict
