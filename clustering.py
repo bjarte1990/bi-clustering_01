@@ -4,14 +4,13 @@ import numpy as np
 from scipy.sparse import csr_matrix
 from sklearn.cluster import DBSCAN, SpectralClustering
 from collections import Counter
-from sklearn.metrics.pairwise import pairwise_distances
+from sklearn.metrics.pairwise import cosine_similarity
 from collections import defaultdict
 
 class Clustering:
 
     weights = None
     edge_list = None
-    categorical_list = None
     items = None
     attributes = None
     values = None
@@ -40,22 +39,21 @@ class Clustering:
                 # print(attribute)
                 a_id = attribute['attr_id']
                 values = attribute['values']
-                if len(values) == 1:
-                    v = float(values[0]['v']) * self.weights[a_id]
-                    self.edge_list.append((link[0], str(a_id), v))
-                else:
-                    # for value in values:
-                    # values_dict[value['node_id']] = value['v']
-                    #             item_attribute.append((link[0], a_id, values_dict))
+                if self.weights[int(a_id)] != 0:
+                    if len(values) == 1:
+                        v = float(values[0]['v']) * self.weights[a_id]
+                        self.edge_list.append((link[0], str(a_id), v))
+                    else:
+                        # for value in values:
+                        # values_dict[value['node_id']] = value['v']
+                        #             item_attribute.append((link[0], a_id, values_dict))
 
-                    # trick: we dont need a list for nodes, handle nodes as attributes
-                    self.categorical_list[link[0]][a_id] = \
-                        list(map(lambda x: (x['node_id'], x['v']), values))
+                        # trick: we dont need a list for nodes, handle nodes as attributes
 
-                    # for value in values:
-                    #     #self.parent_attributes[int(value['node_id'])] = int(a_id)
-                    #     v = float(value['v']) * self.weights[a_id]
-                    #     self.edge_list.append((link[0], str(value['node_id']), v))
+                        for value in values:
+                            #self.parent_attributes[int(value['node_id'])] = int(a_id)
+                            v = float(value['v']) * self.weights[a_id]
+                            self.edge_list.append((link[0], str(value['node_id']), v))
 
         self.items, self.attributes, self.values = zip(*self.edge_list)
 
@@ -96,10 +94,11 @@ class Clustering:
         #                             self.connectivity_m[i+1,:].reshape(1,-1))
         #     self.similarity_matrix[i][i+1] = ss
 
-        self.similarity_matrix = pairwise_distances(self.connectivity_m)
-        self.similarity_matrix = 1 / (1 + self.similarity_matrix)
+        # self.similarity_matrix = pairwise_distances(self.connectivity_m)
+        # self.similarity_matrix = 1 / (1 + self.similarity_matrix)
 
-
+        self.similarity_matrix = cosine_similarity(self.connectivity_m)
+        np.fill_diagonal(self.similarity_matrix,1)
         #self.similarity_matrix = 1 - self.similarity_matrix
         # for i in range(len(self.item_mapping)):
         #     self.similarity_matrix[i] = \
